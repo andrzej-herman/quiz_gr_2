@@ -1,9 +1,11 @@
 ﻿using QuizApp.backend;
+using QuizApp.frontend;
 
-Console.WriteLine("");
+var game = new Game();
+game.CreateQuestions();
+Display.DisplayWelcome();
+var question = game.DrawQuestion();
 
-int x;
 
-Question pytanie1;
 
 Console.ReadLine();
