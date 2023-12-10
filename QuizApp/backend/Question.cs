@@ -10,6 +10,6 @@ namespace QuizApp.backend
     {
         public string Content { get; set; }
         public int Category { get; set; }
-        public List<string> Answers { get; set; }
+        public List<Answer> Answers { get; set; } = new List<Answer>();
     }
 }
