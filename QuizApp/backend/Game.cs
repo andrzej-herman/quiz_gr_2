@@ -9,53 +9,70 @@ namespace QuizApp.backend
 {
     public class Game
     {
+        public Game()
+        {
+            Random = new Random();
+            CreateQuestions();
+            AllCategories = Questions.Select(x => x.Category).Distinct().ToList();
+            CurrentCategory = AllCategories[CurrentCategoryIndex];
+        }
+
         public List<Question> Questions { get; set; }
         public Question CurrentQuestion { get; set; }
-        public int CurrentCategory { get; set; } = 100;
+        public int CurrentCategory { get; set; }
+        public Random Random { get; set; }
+        public int PlayerPoints { get; set; }
+        public List<int> AllCategories { get; set; }
+        public int CurrentCategoryIndex { get; set; }
 
         public void CreateQuestions()
         {
-            // stworzenie bazy 700 pytań
-            Questions = new List<Question>();
-            var q1 = new Question();
-            q1.Category = 100;
-            q1.Content = "Jak miał na imię Einstein?";
-
-            var a1 = new Answer();
-            a1.Id = 1;
-            a1.Content = "Albert";
-            a1.IsCorrect = true;
-            q1.Answers.Add(a1);
-
-            var a2 = new Answer();
-            a2.Id = 2;
-            a2.Content = "Tom";
-            q1.Answers.Add(a2);
-
-            var a3 = new Answer();
-            a3.Id = 3;
-            a3.Content = "John";
-            q1.Answers.Add(a3);
-
-            var a4 = new Answer();
-            a4.Id = 4;
-            a4.Content = "Adam";
-            q1.Answers.Add(a4);
-
-            Questions.Add(q1);
+            Questions =  QuestionCreator.CreateQuestions();
         }
 
         public void DrawQuestion()
         {
-            // prawidziwe losowanie pytania
-            CurrentQuestion = Questions[0];
+            var questionsOfCategory = Questions.Where(x => x.Category == CurrentCategory).ToList();
+            var random = Random.Next(0, questionsOfCategory.Count);
+            var question = questionsOfCategory[random];
+            question.Answers = question.Answers.OrderBy(x => Random.Next()).ToList();
+            
+            for (int i = 0; i < question.Answers.Count; i++)
+            {
+                question.Answers[i].DisplayOrder = i + 1;
+            }
+            
+            
+            CurrentQuestion = question;
         }
 
         public bool IsUserAnswerCorrect(int userDigit)
         {
-            var userAnswer = CurrentQuestion.Answers.FirstOrDefault(x => x.Id == userDigit);
-            return userAnswer.IsCorrect;
+            var userAnswer = CurrentQuestion.Answers.FirstOrDefault(x => x.DisplayOrder == userDigit);
+            var isCorrect = userAnswer.IsCorrect;
+            if (isCorrect)
+            {
+                PlayerPoints += CurrentQuestion.Category;
+            }
+
+
+            return isCorrect;
         }
+
+        public bool IsLastQuestion()
+        {
+            if (CurrentCategoryIndex >= AllCategories.Count - 1)
+            {
+                return true;
+            }
+            else
+            {
+                CurrentCategoryIndex++;
+                CurrentCategory = AllCategories[CurrentCategoryIndex];
+                return false;
+            }
+        }
+
 
 
     }
